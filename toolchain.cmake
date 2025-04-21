@@ -1,4 +1,5 @@
 #=============================================================================
+# Modified 2025 Aris Karagiannidis
 # Copyright 2016 Sam Hanes
 #
 # Distributed under the OSI-approved BSD License (the "License");
@@ -32,8 +33,12 @@ set(MICROCHIP_ROOT ${CMAKE_CURRENT_LIST_DIR})
 list(APPEND CMAKE_MODULE_PATH "${MICROCHIP_ROOT}/Modules")
 
 
-# set the target platform
-# this is what causes CMake to call our modules during setup
+# set the target platform this is what causes CMake to call our modules during setup
+# setting CMAKE_SYSTEM_NAME triggers CMake’s built-in cross-compilation logic.
+#
+# Part of that logic includes searching for platform-specific files named like this:
+# <system-name>*.cmake thus CMake will try to automatically include the following file:
+# Platform/MicrochipMCU.cmake this triggers. That is why we have a platform cmake.
 set(CMAKE_SYSTEM_NAME "MicrochipMCU")
 
 # set the default MCU model
@@ -57,29 +62,35 @@ set(MICROCHIP_MCU "${MICROCHIP_MCU}"
 )
 
 
-# known 8-bit MCU families
+# known 8-bit MCU families used with xc8 compiler
 list(APPEND MICROCHIP_FAMILIES_8
     PIC12F
     PIC16F
     PIC18F
 )
 
-# known 16-bit MCU families
+# known 16-bit MCU families used with xc16 compiler
 list(APPEND MICROCHIP_FAMILIES_16
-    dsPIC30F
-    dsPIC33E
-    dsPIC33F
     PIC24E
     PIC24F
     PIC24H
 )
 
-# known 32-bit MCU families
+# known ds Pic MCU families supported xc-dsc compiler
+list(APPEND MICROCHIP_FAMILIES_DSPIC
+    dsPIC30F
+    dsPIC33E
+    dsPIC33F
+)
+
+# known 32-bit MCU families used with xc32 compiler
 list(APPEND MICROCHIP_FAMILIES_32
     PIC32MX
     PIC32MZ
 )
 
+
+message("-- Checking MCU ${MICROCHIP_MCU}")
 
 # parse the MCU model
 if(MICROCHIP_MCU STREQUAL "generic8")
@@ -96,6 +107,23 @@ elseif(MICROCHIP_MCU STREQUAL "generic32")
     set(MICROCHIP_MCU_FAMILY   "generic")
     set(MICROCHIP_MCU_MODEL    "generic")
     set(CMAKE_SYSTEM_PROCESSOR "PIC_32")
+
+elseif(MICROCHIP_MCU MATCHES "^dsPIC(30F|33E|33F)([A-Z0-9]+)$")
+    #message("-- CMAKE_MATCH_1 ${CMAKE_MATCH_1}")
+    #message("-- CMAKE_MATCH_2 ${CMAKE_MATCH_2}")
+    #message("-- CMAKE_MATCH_3 ${CMAKE_MATCH_3}")
+    #message("-- CMAKE_MATCH_4 ${CMAKE_MATCH_4}")
+    set(MICROCHIP_MCU_FAMILY "dsPIC${CMAKE_MATCH_1}")
+    set(MICROCHIP_MCU_MODEL  ${CMAKE_MATCH_1}${CMAKE_MATCH_2})
+
+    if(MICROCHIP_MCU_FAMILY IN_LIST MICROCHIP_FAMILIES_DSPIC)
+        message("-- ${MICROCHIP_MCU} is a PIC_DSP System Processor")
+        set(CMAKE_SYSTEM_PROCESSOR "PIC_DSP")
+    else()
+        message(FATAL_ERROR
+            "Unsupported MCU family '${MICROCHIP_MCU_FAMILY}'."
+        )
+    endif()
 
 elseif(MICROCHIP_MCU MATCHES "^(dsPIC|PIC)(32M[XZ]|[0-9]+[A-Z])([A-Z0-9]+)$")
     set(MICROCHIP_MCU_FAMILY "${CMAKE_MATCH_1}${CMAKE_MATCH_2}")
