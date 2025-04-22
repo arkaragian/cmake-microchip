@@ -22,23 +22,27 @@
 
 
 # CMP0057 (IN_LIST operator) since 3.3
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.20)
 
 
 # record the directory containing this script
 # it will be used as the base for finding our other files
 set(MICROCHIP_ROOT ${CMAKE_CURRENT_LIST_DIR})
 
+#message("-- Microchip Root: ${MICROCHIP_ROOT}")
+
 # add our modules to the search path
 list(APPEND CMAKE_MODULE_PATH "${MICROCHIP_ROOT}/Modules")
 
 
-# set the target platform this is what causes CMake to call our modules during setup
-# setting CMAKE_SYSTEM_NAME triggers CMake’s built-in cross-compilation logic.
+# set the target platform this is what causes CMake to call our modules during
+# setup setting CMAKE_SYSTEM_NAME triggers CMake’s built-in cross-compilation
+# logic.
 #
-# Part of that logic includes searching for platform-specific files named like this:
-# <system-name>*.cmake thus CMake will try to automatically include the following file:
-# Platform/MicrochipMCU.cmake this triggers. That is why we have a platform cmake.
+# Part of that logic includes searching for platform-specific files named like
+# this: <system-name>*.cmake thus CMake will try to automatically include the
+# following file: Platform/MicrochipMCU.cmake this triggers. That is why we have
+# a platform cmake.
 set(CMAKE_SYSTEM_NAME "MicrochipMCU")
 
 # set the default MCU model
@@ -90,7 +94,7 @@ list(APPEND MICROCHIP_FAMILIES_32
 )
 
 
-message("-- Checking MCU ${MICROCHIP_MCU}")
+#message("-- Checking MCU ${MICROCHIP_MCU}")
 
 # parse the MCU model
 if(MICROCHIP_MCU STREQUAL "generic8")
@@ -117,9 +121,10 @@ elseif(MICROCHIP_MCU MATCHES "^dsPIC(30F|33E|33F)([A-Z0-9]+)$")
     set(MICROCHIP_MCU_MODEL  ${CMAKE_MATCH_1}${CMAKE_MATCH_2})
 
     if(MICROCHIP_MCU_FAMILY IN_LIST MICROCHIP_FAMILIES_DSPIC)
-        message("-- ${MICROCHIP_MCU} is a PIC_DSP System Processor")
+        #message("-- ${MICROCHIP_MCU} is a PIC_DSP System Processor")
         set(CMAKE_SYSTEM_PROCESSOR "PIC_DSP")
     else()
+        message("Fail with ${MICROCHIP_MCU}")
         message(FATAL_ERROR
             "Unsupported MCU family '${MICROCHIP_MCU_FAMILY}'."
         )
