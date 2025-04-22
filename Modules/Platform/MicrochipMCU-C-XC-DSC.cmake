@@ -22,9 +22,9 @@ MICROCHIP_PATH_SEARCH(MICROCHIP_XC_DSC_PATH xc-dsc
 
 if(NOT MICROCHIP_XC_DSC_PATH)
     message(FATAL_ERROR
-        "No Microchip XC16 compiler was found. Please provide the path"
+        "No Microchip xc dsc compiler was found. Please provide the path"
         " to an XC16 installation on the command line, for example:\n"
-        "cmake -DMICROCHIP_XC_DSC_PATH=/opt/microchip/xc16/v1.25 ."
+        "cmake -DMICROCHIP_XC_DSC_PATH=/opt/microchip/xc-dsc/v1.25 ."
     )
 endif()
 
@@ -63,10 +63,12 @@ set(CMAKE_FIND_ROOT_PATH ${MICROCHIP_XC_DSC_PATH})
 # routines to run as they still find some useful information.
 
 
+#TODO: using xc-dsc-gcc produces buggy paths this happens with either xc-dsc-gcc using
+#find or using the compiler directly thus we use the underelying compiler directly.
+# that is elf-gcc
 #find_program(CMAKE_C_COMPILER "xc-dsc-gcc")
-
 #set(CMAKE_C_COMPILER "${MICROCHIP_XC_DSC_PATH}/bin/xc-dsc-gcc.exe" CACHE FILEPATH "Path to Microchip compiler" FORCE)
-#TODO: using xc-dsc-gcc produces buggy paths
+
 set(CMAKE_C_COMPILER "${MICROCHIP_XC_DSC_PATH}/bin/bin/elf-gcc.exe" CACHE FILEPATH "Path to Microchip compiler" FORCE)
 
 message("-- C Compiler Path is: ${CMAKE_C_COMPILER}")
@@ -89,17 +91,15 @@ function(_xc_dsc_get_version)
         RESULT_VARIABLE result
     )
 
-    message("Version Result is ${result}")
-
-    #if(result)
-    #    message(FATAL_ERROR
-    #        "Calling '${CMAKE_C_COMPILER} --version' failed."
-    #    )
-    #endif()
+    if(NOT result EQUAL 0)
+        message(FATAL_ERROR
+            "Calling '${CMAKE_C_COMPILER} --version' failed."
+        )
+    endif()
 
     if(output MATCHES "([0-9]+[.0-9]+).*XC-DSC, Microchip v([0-9]+\.[0-9]+)")
         set(gnu_version  ${CMAKE_MATCH_1})
-        set(xc16_version ${CMAKE_MATCH_2})
+        set(xcdsc_version ${CMAKE_MATCH_2})
     else()
         message(FATAL_ERROR
             "Failed to parse output of '${CMAKE_C_COMPILER} --version'."
@@ -107,10 +107,10 @@ function(_xc_dsc_get_version)
     endif()
 
     string(REPLACE "_" "." gnu_version  ${gnu_version})
-    string(REPLACE "_" "." xc16_version ${xc16_version})
+    string(REPLACE "_" "." xcdsc_version ${xcdsc_version})
 
     set(CMAKE_C_COMPILER_VERSION ${gnu_version} PARENT_SCOPE)
-    set(MICROCHIP_C_COMPILER_VERSION ${xc16_version} PARENT_SCOPE)
+    set(MICROCHIP_C_COMPILER_VERSION ${xcdsc_version} PARENT_SCOPE)
 endfunction()
 _xc_dsc_get_version()
 
