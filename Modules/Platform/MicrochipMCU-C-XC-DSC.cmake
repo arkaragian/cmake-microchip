@@ -128,7 +128,16 @@ set(CMAKE_C_STANDARD_COMPUTED_DEFAULT 90)
 add_compile_options(
     "-mcpu=${MICROCHIP_MCU_MODEL}"
 )
-string(APPEND CMAKE_C_LINK_FLAGS
-    " -mcpu=${MICROCHIP_MCU_MODEL}"
-    " -Wl,--script,p${MICROCHIP_MCU_MODEL}.gld"
-)
+
+if(DEFINED MICROCHIP_CUSTOM_LINK_FLAGS)
+    # If we need to define custom link commands define the CMAKE_EXE_LINKER_FLAGS
+    # set(CMAKE_EXE_LINKER_FLAGS "-Wl,--script=${CMAKE_SOURCE_DIR}/p33EP512GM304.gld,--local-stack,--defsym=__MPLAB_BUILD=1,--heap=8192,--stack=16,--check-sections,--data-init,--pack-data,--handles,--isr,--gc-sections,--fill-upper=0,--stackguard=16,--no-force-link,--smart-io,--Map=${CMAKE_BINARY_DIR}/${ProjectName}.map")
+    string(APPEND CMAKE_C_LINK_FLAGS
+        " -mcpu=${MICROCHIP_MCU_MODEL}"
+    )
+else()
+    string(APPEND CMAKE_C_LINK_FLAGS
+        " -mcpu=${MICROCHIP_MCU_MODEL}"
+        " -Wl,--script,p${MICROCHIP_MCU_MODEL}.gld"
+    )
+endif()
