@@ -13,6 +13,12 @@
 
 
 function(bin2hex target)
+
+    #cmake_parse_arguments(BIN2HEX "" "" "OPTIONS" ${ARGN})
+
+    # Collect all optional args after the 'target'
+    set(options ${ARGN})
+
     find_program(MICROCHIP_BIN2HEX
         NAMES ${_CMAKE_TOOLCHAIN_PREFIX}bin2hex bin2hex
         HINTS ${_CMAKE_TOOLCHAIN_LOCATION}
@@ -50,7 +56,7 @@ function(bin2hex target)
     add_custom_command(
         TARGET ${target} POST_BUILD
         WORKING_DIRECTORY ${dir}
-        COMMAND "${MICROCHIP_BIN2HEX}" "${in_f}"
+        COMMAND "${MICROCHIP_BIN2HEX}" ${options} "${in_f}"
         BYPRODUCTS ${dir}/${out_f}
         VERBATIM
     )
