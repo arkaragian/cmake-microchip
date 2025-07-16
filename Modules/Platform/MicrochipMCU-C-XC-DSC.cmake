@@ -134,10 +134,11 @@ if(DEFINED MICROCHIP_CUSTOM_LINK_FLAGS)
     # set(CMAKE_EXE_LINKER_FLAGS "-Wl,--script=${CMAKE_SOURCE_DIR}/p33EP512GM304.gld,--local-stack,--defsym=__MPLAB_BUILD=1,--heap=8192,--stack=16,--check-sections,--data-init,--pack-data,--handles,--isr,--gc-sections,--fill-upper=0,--stackguard=16,--no-force-link,--smart-io,--Map=${CMAKE_BINARY_DIR}/${ProjectName}.map")
     string(APPEND CMAKE_C_LINK_FLAGS
         " -mcpu=${MICROCHIP_MCU_MODEL}"
+        " -Wl,--Map=FWImage.map,--report-mem,--memorysummary,memoryfile.xml"
     )
 else()
     string(APPEND CMAKE_C_LINK_FLAGS
         " -mcpu=${MICROCHIP_MCU_MODEL}"
-        " -Wl,--script,p${MICROCHIP_MCU_MODEL}.gld"
+        " -Wl,--script,p${MICROCHIP_MCU_MODEL}.gld,--Map=FWImage.map,--report-mem,--memorysummary,memoryfile.xml"
     )
 endif()
