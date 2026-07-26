@@ -15,10 +15,30 @@
 # to provide information specific to the XC16 compiler
 
 include(MicrochipPathSearch)
+
+set(MICROCHIP_XC_DSC_DFP_PATH "" CACHE PATH
+    "Path to the compiler-specific directory within an XC-DSC device family pack"
+)
+
+
+# - A DFP can be installed through MPLAB X Pack Manager or downloaded from Microchip’s pack repository.
+# - The path must end at the pack’s xc-dsc or xc16 compiler directory.
+
+if(MICROCHIP_C_COMPILER_VERSION VERSION_GREATER_EQUAL "3.30" AND NOT MICROCHIP_XC_DSC_DFP_PATH)
+    message(FATAL_ERROR   "Starting from version 3.30 xc-dsc no longer contains device support use -DMICROCHIP_XC_DSC_DFP_PATH to point to the appropriate DFP directory"
+)
+endif()
+
+
+
 MICROCHIP_PATH_SEARCH(MICROCHIP_XC_DSC_PATH xc-dsc 
     CACHE "the path to a Microchip xc-dsc installation"
     BAD_VERSIONS 1.26
 )
+
+
+
+
 
 if(NOT MICROCHIP_XC_DSC_PATH)
     message(FATAL_ERROR
@@ -134,11 +154,13 @@ if(DEFINED MICROCHIP_CUSTOM_LINK_FLAGS)
     # set(CMAKE_EXE_LINKER_FLAGS "-Wl,--script=${CMAKE_SOURCE_DIR}/p33EP512GM304.gld,--local-stack,--defsym=__MPLAB_BUILD=1,--heap=8192,--stack=16,--check-sections,--data-init,--pack-data,--handles,--isr,--gc-sections,--fill-upper=0,--stackguard=16,--no-force-link,--smart-io,--Map=${CMAKE_BINARY_DIR}/${ProjectName}.map")
     string(APPEND CMAKE_C_LINK_FLAGS
         " -mcpu=${MICROCHIP_MCU_MODEL}"
+        " -mdfp=${MICROCHIP_XC_DSC_DFP_PATH}"
         " -Wl,--Map=FWImage.map,--report-mem,--memorysummary,memoryfile.xml"
     )
 else()
     string(APPEND CMAKE_C_LINK_FLAGS
         " -mcpu=${MICROCHIP_MCU_MODEL}"
+        " -mdfp=${MICROCHIP_XC_DSC_DFP_PATH}"
         " -Wl,--script,p${MICROCHIP_MCU_MODEL}.gld,--Map=FWImage.map,--report-mem,--memorysummary,memoryfile.xml"
     )
 endif()

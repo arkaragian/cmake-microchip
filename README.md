@@ -38,3 +38,7 @@ Create a `build` directory go there and issue the following command:
 ```
 cmake .. -DCMAKE_TOOLCHAIN_FILE="../../toolchain.cmake"
 ```
+
+```
+cmake .. -DCMAKE_TOOLCHAIN_FILE=external/cmake-microchip/microchip_toolchain.cmake -DMICROCHIP_MCU=dsPIC33EP512GM304 -DMICROCHIP_XC_DSC_DFP_PATH="$HOME/.mchp_packs/Microchip/dsPIC33CK-MP_DFP/1.5.135/xc-dsc"
+```
